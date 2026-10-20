@@ -112,6 +112,38 @@ ul.tight li{margin:3px 0}
 <h2>Last night cram sheet</h2>
 <div class="note"><p><b>Order:</b> read the notes (45 min), do problems P1 to P9 on paper without looking (2 hrs), check answers (30 min), say the two conceptual answers out loud, then sleep. Every answer here was checked by simulation.</p></div>
 
+<h3>What will be on the quiz</h3>
+<p>From her announcement: in person, first 30 minutes, closed book, <b>2 problems</b> with sub-questions, some quantitative (like the homework) and some conceptual (explain trade-offs). She will hand out a sheet with the main formulas.</p>
+<div class="tw"><table>
+<tr><th>Likely question</th><th>Practice it with</th></tr>
+<tr><td>Sets and tag bits for different ways of associativity</td><td>P1</td></tr>
+<tr><td>Address list → which memory block ends up in each cache block (4-byte words, Z KB memory)</td><td>P2, P3</td></tr>
+<tr><td>Conceptual: doubling associativity in a cache of fixed size, what goes up and down</td><td>Conceptual Q1 below</td></tr>
+<tr><td>Conceptual: how the inverted page table works</td><td>Conceptual Q2 below</td></tr>
+<tr><td>Possible extras from the homework: CPI with L2, AMAT with dirty blocks, page table size, TLB trace</td><td>P4 to P9</td></tr>
+</table></div>
+
+<h3>Remember vs. what her sheet gives you</h3>
+<div class="cols">
+<div class="day"><div class="d">Must remember</div>
+<ul class="tight">
+<li><b>Address split steps:</b> offset from block size, index from #sets, tag is the rest. Double the ways → tag +1 bit.</li>
+<li><b>Cache trace steps:</b> block # = address / block bytes, set = block # mod #sets, then hit or miss with LRU.</li>
+<li><b>TLB trace steps:</b> TLB, then page table, else page fault. New page gets the next PPN. Evict the largest "time since access".</li>
+<li><b>Associativity answer:</b> fewer conflict misses with diminishing returns. Hit time, power and tag bits go up.</li>
+<li><b>Inverted page table answer:</b> one entry per frame, search (pid, VPN), index of the match is the frame. Small but slow, so it needs a TLB.</li>
+</ul></div>
+<div class="day"><div class="d">On her sheet, don't memorize</div>
+<ul class="tight">
+<li>CPI and AMAT formulas</li>
+<li>Page table size, multi-level and cache bits formulas</li>
+<li>Exact slide numbers (10.3%, 335 MB). "Diminishing returns" is enough.</li>
+<li>The one-liners at the bottom: skim once so they look familiar.</li>
+</ul></div>
+</div>
+<div class="note"><p><b>Best use of time:</b> do P2 and P9 on paper without looking, twice if needed, then the Practice quiz tab with the timer. Doing them by hand is how the steps stick.</p></div>
+
+<h2>Notes</h2>
 <h3>Cache address split</h3>
 <div class="bits"><span class="t" style="flex:5">Tag</span><span class="i" style="flex:3">Index</span><span class="o" style="flex:2">Offset</span></div>
 <div class="formula">address bits = log2(memory bytes)          8 KB memory → 13 bits
