@@ -1,4 +1,11 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><style>*{box-sizing:border-box}img{max-width:100%}[hidden]{display:none!important}body{margin:0}</style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><style>*{box-sizing:border-box}img{max-width:100%}[hidden]{display:none!important}body{margin:0}.badges{display:inline-flex;flex-wrap:wrap;gap:6px;margin-left:8px;vertical-align:middle}
+.b{display:inline-block;font:600 11px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.b.m{background:var(--accent-soft);color:var(--accent)}
+.b.s{background:var(--miss-bg);color:var(--muted)}
+.b.q{background:var(--idx-bg);color:var(--idx)}
+.b.p{background:var(--tag-bg);color:var(--tag)}
+.key{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:14px;color:var(--muted);margin:10px 0 4px}
+</style>
 <title>ECE 563 Quiz 1 Prep</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,39 +119,9 @@ ul.tight li{margin:3px 0}
 <h2>Last night cram sheet</h2>
 <div class="note"><p><b>Order:</b> read the notes (45 min), do problems P1 to P9 on paper without looking (2 hrs), check answers (30 min), say the two conceptual answers out loud, then sleep. Every answer here was checked by simulation.</p></div>
 
-<h3>What will be on the quiz</h3>
-<p>From her announcement: in person, first 30 minutes, closed book, <b>2 problems</b> with sub-questions, some quantitative (like the homework) and some conceptual (explain trade-offs). She will hand out a sheet with the main formulas.</p>
-<div class="tw"><table>
-<tr><th>Likely question</th><th>Practice it with</th></tr>
-<tr><td>Sets and tag bits for different ways of associativity</td><td>P1</td></tr>
-<tr><td>Address list → which memory block ends up in each cache block (4-byte words, Z KB memory)</td><td>P2, P3</td></tr>
-<tr><td>Conceptual: doubling associativity in a cache of fixed size, what goes up and down</td><td>Conceptual Q1 below</td></tr>
-<tr><td>Conceptual: how the inverted page table works</td><td>Conceptual Q2 below</td></tr>
-<tr><td>Possible extras from the homework: CPI with L2, AMAT with dirty blocks, page table size, TLB trace</td><td>P4 to P9</td></tr>
-</table></div>
-
-<h3>Remember vs. what her sheet gives you</h3>
-<div class="cols">
-<div class="day"><div class="d">Must remember</div>
-<ul class="tight">
-<li><b>Address split steps:</b> offset from block size, index from #sets, tag is the rest. Double the ways → tag +1 bit.</li>
-<li><b>Cache trace steps:</b> block # = address / block bytes, set = block # mod #sets, then hit or miss with LRU.</li>
-<li><b>TLB trace steps:</b> TLB, then page table, else page fault. New page gets the next PPN. Evict the largest "time since access".</li>
-<li><b>Associativity answer:</b> fewer conflict misses with diminishing returns. Hit time, power and tag bits go up.</li>
-<li><b>Inverted page table answer:</b> one entry per frame, search (pid, VPN), index of the match is the frame. Small but slow, so it needs a TLB.</li>
-</ul></div>
-<div class="day"><div class="d">On her sheet, don't memorize</div>
-<ul class="tight">
-<li>CPI and AMAT formulas</li>
-<li>Page table size, multi-level and cache bits formulas</li>
-<li>Exact slide numbers (10.3%, 335 MB). "Diminishing returns" is enough.</li>
-<li>The one-liners at the bottom: skim once so they look familiar.</li>
-</ul></div>
-</div>
-<div class="note"><p><b>Best use of time:</b> do P2 and P9 on paper without looking, twice if needed, then the Practice quiz tab with the timer. Doing them by hand is how the steps stick.</p></div>
-
 <h2>Notes</h2>
-<h3>Cache address split</h3>
+<div class="key"><span class="b m">Memorize</span> know the steps or idea by heart <span class="b s">On her formula sheet</span> given to you on the day <span class="b q">On quiz</span> she named it in the announcement <span class="b p">Maybe on quiz</span> came up in homework</div>
+<h3>Cache address split<span class="badges"><span class="b m">Memorize</span><span class="b q">On quiz</span></span></h3>
 <div class="bits"><span class="t" style="flex:5">Tag</span><span class="i" style="flex:3">Index</span><span class="o" style="flex:2">Offset</span></div>
 <div class="formula">address bits = log2(memory bytes)          8 KB memory → 13 bits
 offset = log2(block bytes)
@@ -152,7 +129,7 @@ blocks = cache size / block size     sets = blocks / ways
 index  = log2(sets)                  tag = address − index − offset
 Double the ways → index −1, tag +1.  Fully associative → index 0</div>
 
-<h3>Tracing addresses (most likely quantitative question)</h3>
+<h3>Tracing addresses (most likely quantitative question)<span class="badges"><span class="b m">Memorize</span><span class="b q">On quiz</span></span></h3>
 <ol class="tight">
 <li>Block # = byte address / block bytes, rounded down. Watch for 8-word blocks = 32 bytes.</li>
 <li>Set = block # mod #sets.</li>
@@ -160,13 +137,13 @@ Double the ways → index −1, tag +1.  Fully associative → index 0</div>
 <li>Final answer: cache block → memory block and its byte range, e.g. Mem[96 to 127].</li>
 </ol>
 
-<h3>Formulas in her style</h3>
+<h3>Formulas in her style<span class="badges"><span class="b s">On her formula sheet</span><span class="b p">Maybe on quiz</span></span></h3>
 <div class="formula">Total cache bits = #blocks × (1 valid + tag + 8 × block bytes)   (+1 dirty only if write back)
 CPI  = base + L1 miss × L2 time + global miss × memory cycles     memory cycles = memory ns / clock ns
 AMAT = hit + miss rate × (dirty% × dirty penalty + clean% × clean penalty)
 Write buffer removes X% of stalls → dirty penalty × (1 − X).     Speedup = old AMAT / new AMAT</div>
 
-<h3>Virtual memory</h3>
+<h3>Virtual memory<span class="badges"><span class="b s">On her formula sheet</span><span class="b p">Maybe on quiz</span></span></h3>
 <div class="formula">VPN bits = VA bits − log2(page size)        #PTEs = 2^VPN bits
 Page table size = entries × width   (her slides: width = status bits + full PA bits)
 Multi-level: entries per page = page size / PTE size
@@ -174,7 +151,7 @@ Multi-level: entries per page = page size / PTE size
              TLB miss = 1 memory ref per level (+1 for the data)
 Inverted table: entries = DRAM / page size, one table for the whole system</div>
 
-<h3>TLB trace</h3>
+<h3>TLB trace<span class="badges"><span class="b m">Memorize</span><span class="b p">Maybe on quiz</span></span></h3>
 <ol class="tight">
 <li>VPN = hex address with the last 3 digits dropped (4 KB pages).</li>
 <li>In the TLB: <span class="pill hit">TLB hit</span></li>
@@ -183,7 +160,7 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <li>Loading into the TLB: use an invalid entry first, else evict the largest "time since access". Each step add 1 to every other entry's time and reset the accessed one to 0.</li>
 </ol>
 
-<h3>Conceptual Q1: increasing associativity at fixed size</h3>
+<h3>Conceptual Q1: increasing associativity at fixed size<span class="badges"><span class="b m">Memorize</span><span class="b q">On quiz</span></span></h3>
 <ul class="tight">
 <li>Sets halve, index goes down, tag goes up.</li>
 <li>Conflict misses go down, so miss rate drops, with diminishing returns (her slide: 10.3%, 8.6%, 8.3%, 8.1%).</li>
@@ -192,7 +169,7 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <li>AMAT = hit + miss rate × penalty, so eventually hit time growth beats the miss rate drop. That is why L1 has low associativity and L2/L3 high.</li>
 </ul>
 
-<h3>Conceptual Q2: inverted page table</h3>
+<h3>Conceptual Q2: inverted page table<span class="badges"><span class="b m">Memorize</span><span class="b q">On quiz</span></span></h3>
 <ul class="tight">
 <li>One entry per physical frame, holding (pid, VPN). One table for the whole system, sized by DRAM.</li>
 <li>Lookup: hash (pid, VPN), follow the chain to a match. The index i of the match is the frame, so PA = (i, offset).</li>
@@ -200,7 +177,7 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <li>Pro: tiny table. Cons: slow search (about 1 ref usually, a long chain worst case) so it needs a TLB, sharing is hard, pages on disk need a separate structure.</li>
 </ul>
 
-<h3>One-liners for other trade-off questions</h3>
+<h3>One-liners for other trade-off questions<span class="badges"><span class="b s">Skim once</span><span class="b p">Maybe on quiz</span></span></h3>
 <ul class="tight">
 <li><b>Bigger blocks:</b> fewer compulsory misses, but bigger miss penalty and fewer blocks.</li>
 <li><b>Write through:</b> simple but heavy traffic, needs a write buffer. <b>Write back:</b> low traffic, needs a dirty bit, dirty evictions are slower.</li>
@@ -211,7 +188,7 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <h2>Practice problems</h2>
 <div class="timer"><button class="btn" id="cramAll" type="button">Show all answers</button></div>
 
-<div class="q"><h3>P1. Sets and tags</h3>
+<div class="q"><h3>P1. Sets and tags<span class="badges"><span class="b q">On quiz</span></span></h3>
 <p>A 32 MB cache with 64 B blocks and a 52-bit address. Find sets, index bits and tag bits for direct mapped, 4-way, 8-way and fully associative.</p>
 <details class="sol"><summary>Answer P1</summary><div class="body">
 <p>Blocks = 2<sup>25</sup> / 2<sup>6</sup> = 2<sup>19</sup>, offset = 6.</p>
@@ -223,7 +200,7 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <tr><td>Fully associative</td><td class="n">1</td><td class="n">0</td><td class="n">46</td></tr>
 </table></div></div></details></div>
 
-<div class="q"><h3>P2. Address trace</h3>
+<div class="q"><h3>P2. Address trace<span class="badges"><span class="b q">On quiz</span></span></h3>
 <p>Byte addresses: <span class="mono">64, 200, 580, 72, 336, 1100, 216, 592, 96, 1092</span>. Memory is 8 KB, each word is 4 bytes. Find hits, misses and final contents for (a) a direct mapped cache with 8-word blocks and 64 words total, and (b) a 2-way cache with the same block size and total size, using LRU.</p>
 <details class="sol"><summary>Answer P2</summary><div class="body">
 <p>Address 13 bits, block 32 B, offset 5, 8 blocks. Memory block numbers in order: 2, 6, 18, 2, 10, 34, 6, 18, 3, 34.</p>
@@ -260,39 +237,39 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <p>Good point if asked: higher associativity does not always win. Five blocks cycle through a 2-way set, so LRU always evicts the block needed next (thrashing).</p>
 </div></details></div>
 
-<div class="q"><h3>P3. Total cache bits</h3>
+<div class="q"><h3>P3. Total cache bits<span class="badges"><span class="b p">Maybe on quiz</span></span></h3>
 <p>Total bits for each cache in P2.</p>
 <details class="sol"><summary>Answer P3</summary><div class="body"><div class="formula">(a) 8 × (1 + 5 + 256) = 2,096 bits
 (b) 8 × (1 + 6 + 256) = 2,104 bits</div></div></details></div>
 
-<div class="q"><h3>P4. CPI with L2</h3>
+<div class="q"><h3>P4. CPI with L2<span class="badges"><span class="b p">Maybe on quiz</span></span></h3>
 <p>Base CPI 1.5, 4 GHz, memory 50 ns, L1 miss rate 8%. Find the CPI for (a) L1 only, (b) adding an L2 with 12-cycle access and 2% global miss rate, (c) instead an L2 with 30-cycle access and 1% global miss rate.</p>
 <details class="sol"><summary>Answer P4</summary><div class="body"><div class="formula">clock = 0.25 ns → memory = 200 cycles
 (a) 1.5 + 0.08 × 200              = 17.5
 (b) 1.5 + 0.08 × 12 + 0.02 × 200  = 1.5 + 0.96 + 4 = 6.46
 (c) 1.5 + 0.08 × 30 + 0.01 × 200  = 1.5 + 2.4 + 2  = 5.9</div></div></details></div>
 
-<div class="q"><h3>P5. AMAT with dirty blocks</h3>
+<div class="q"><h3>P5. AMAT with dirty blocks<span class="badges"><span class="b p">Maybe on quiz</span></span></h3>
 <p>Write back cache, 40% of evicted blocks dirty. Miss rate 8%, hit time 1 cycle, miss penalty 6 cycles clean and 18 cycles dirty. Find (a) AMAT and (b) the speedup if a write buffer removes 25% of the write back stalls.</p>
 <details class="sol"><summary>Answer P5</summary><div class="body"><div class="formula">(a) 1 + 0.08 × (0.4 × 18 + 0.6 × 6)          = 1 + 0.08 × 10.8 = 1.864
 (b) 1 + 0.08 × (0.4 × 18 × 0.75 + 0.6 × 6)   = 1 + 0.08 × 9    = 1.72
 speedup = 1.864 / 1.72 = 1.08</div></div></details></div>
 
-<div class="q"><h3>P6. Page table size</h3>
+<div class="q"><h3>P6. Page table size<span class="badges"><span class="b p">Maybe on quiz</span></span></h3>
 <p>42-bit VA, 16 KB pages, 34-bit PA, 4 status bits. Page table size per process?</p>
 <details class="sol"><summary>Answer P6</summary><div class="body"><div class="formula">entries = 2^42 / 2^14 = 2^28
 width   = 4 + 34 = 38 bits
 size    = 2^28 × 38 bits = 2^25 × 38 bytes ≈ 1.19 GiB</div></div></details></div>
 
-<div class="q"><h3>P7. Multi-level levels</h3>
+<div class="q"><h3>P7. Multi-level levels<span class="badges"><span class="b p">Maybe on quiz</span></span></h3>
 <p>40-bit VA, 4 KB pages, 8-byte PTEs, each level fits in one page. How many levels, and how many memory refs on a TLB miss?</p>
 <details class="sol"><summary>Answer P7</summary><div class="body"><p>VPN = 28 bits. A page holds 4096 / 8 = 512 entries = 9 bits per level. ceil(28 / 9) = <b>4 levels</b>, so <b>4 refs</b> for translation plus 1 for the data.</p></div></details></div>
 
-<div class="q"><h3>P8. Inverted page table</h3>
+<div class="q"><h3>P8. Inverted page table<span class="badges"><span class="b p">Maybe on quiz</span></span></h3>
 <p>8 GiB of DRAM and 4 KB pages. How many entries in the inverted page table?</p>
 <details class="sol"><summary>Answer P8</summary><div class="body"><p>2<sup>33</sup> / 2<sup>12</sup> = 2<sup>21</sup> = <b>2,097,152 entries</b>.</p></div></details></div>
 
-<div class="q"><h3>P9. TLB and page table trace</h3>
+<div class="q"><h3>P9. TLB and page table trace<span class="badges"><span class="b p">Maybe on quiz</span></span></h3>
 <p>4 KB pages, 4-entry fully associative TLB with LRU, new pages get the next largest PPN. Virtual addresses: <span class="mono">0x4a10, 0x2c08, 0x7f00, 0x1234, 0x5abc, 0x6004, 0x3ff0</span>.</p>
 <div class="cols">
 <div><div class="tw"><table>
