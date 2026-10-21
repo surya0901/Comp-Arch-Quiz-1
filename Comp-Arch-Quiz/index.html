@@ -140,18 +140,19 @@ Double the ways → index −1, tag +1.  Fully associative → index 0</div>
 <h4 class="lbl">Now do this</h4>
 <div class="q"><h3>P1. Sets and tags<span class="badges"><span class="bd bq">On quiz</span></span></h3>
 <p>A 32 MB cache with 64 B blocks and a 52-bit address. Find sets, index bits and tag bits for direct mapped, 4-way, 8-way and fully associative.</p>
-<details class="sol"><summary>Answer P1</summary><div class="body">
-<p>Blocks = 2<sup>25</sup> / 2<sup>6</sup> = 2<sup>19</sup>, offset = 6.</p>
-<div class="tw"><table>
-<tr><th>Structure</th><th class="n">Sets</th><th class="n">Index</th><th class="n">Tag</th></tr>
-<tr><td>Direct mapped</td><td class="n">2<sup>19</sup></td><td class="n">19</td><td class="n">27</td></tr>
-<tr><td>4-way</td><td class="n">2<sup>17</sup></td><td class="n">17</td><td class="n">29</td></tr>
-<tr><td>8-way</td><td class="n">2<sup>16</sup></td><td class="n">16</td><td class="n">30</td></tr>
-<tr><td>Fully associative</td><td class="n">1</td><td class="n">0</td><td class="n">46</td></tr>
-</table></div></div></details></div>
+<details class="sol"><summary>Answer P1</summary><div class="body"><h4>Step 1. Powers of 2</h4><div class="formula">32 MB = 2^5 × 2^20 = 2^25 bytes
+64 B  = 2^6 bytes</div><h4>Step 2. Offset</h4><div class="formula">offset = log2(64) = 6 bits</div><h4>Step 3. Blocks</h4><div class="formula">blocks = 2^25 / 2^6 = 2^(25−6) = 2^19</div><h4>Step 4. Sets and index, then tag = 52 − index − 6</h4><div class="formula">Direct mapped: sets = 2^19 / 1   = 2^19 → index 19 → tag 52 − 19 − 6 = 27
+4-way:         sets = 2^19 / 2^2 = 2^17 → index 17 → tag 52 − 17 − 6 = 29
+8-way:         sets = 2^19 / 2^3 = 2^16 → index 16 → tag 52 − 16 − 6 = 30
+Fully assoc:   sets = 1          = 2^0  → index 0  → tag 52 − 0  − 6 = 46</div><p><b>Shortcut:</b> tag + index stays 46. Each doubling of ways moves 1 bit from index to tag.</p></div></details></div>
 <div class="q"><h3>From HW2: Problem 1<span class="badges"><span class="bd bq">On quiz</span></span></h3>
 <p>8 MB data cache, 256-byte blocks, 58-bit physical address. Index and tag for direct mapped, 8-way and fully associative.</p>
-<details class="sol"><summary>Answer</summary><div class="body"><p>Blocks = 2<sup>23</sup> / 2<sup>8</sup> = 2<sup>15</sup>, offset 8. Direct mapped: index 15, tag 35. 8-way: 2<sup>12</sup> sets, index 12, tag 38. Fully associative: index 0, tag 50.</p></div></details></div>
+<details class="sol"><summary>Answer</summary><div class="body"><div class="formula">8 MB  = 2^3 × 2^20 = 2^23 bytes      256 B = 2^8 → offset 8
+blocks = 2^23 / 2^8 = 2^15
+
+Direct mapped: sets 2^15        → index 15 → tag 58 − 15 − 8 = 35
+8-way:         sets 2^15 / 2^3 = 2^12 → index 12 → tag 58 − 12 − 8 = 38
+Fully assoc:   sets 1          → index 0  → tag 58 − 0  − 8 = 50</div></div></details></div>
 </div>
 <div class="step" id="step2">
 <div class="stephead"><h2>Step 2. Tracing addresses</h2><label class="done"><input type="checkbox" id="done2"> Done</label></div>
@@ -166,13 +167,32 @@ Double the ways → index −1, tag +1.  Fully associative → index 0</div>
 <h4 class="lbl">Now do this</h4>
 <div class="q"><h3>Warm-up: her slide example<span class="badges"><span class="bd bq">On quiz</span></span></h3>
 <p>A 4-block cache. Block addresses 0, 8, 0, 6, 8. Count misses for direct mapped, 2-way (LRU) and fully associative.</p>
-<details class="sol"><summary>Answer</summary><div class="body">
-<div class="formula">Direct mapped (index = block mod 4): 0,8,0 all map to 0 → 5 misses, 0 hits
-2-way (2 sets, set = block mod 2): 0,8 share set 0 → 0 hit on 3rd access, 6 evicts 8, 8 evicts 0 → 4 misses, 1 hit
-Fully associative: only 3 distinct blocks fit → 3 misses, 2 hits</div></div></details></div>
+<details class="sol"><summary>Answer</summary><div class="body"><h4>Direct mapped: 4 sets, index = block mod 4</h4><div class="formula">0 → 0 mod 4 = 0   miss   cache[0] = 0
+8 → 8 mod 4 = 0   miss   cache[0] = 8 (evicts 0)
+0 → 0             miss   cache[0] = 0 (evicts 8)
+6 → 6 mod 4 = 2   miss   cache[2] = 6
+8 → 0             miss   cache[0] = 8 (evicts 0)
+Total: 5 misses, 0 hits</div><h4>2-way: 4 blocks / 2 = 2 sets, set = block mod 2 (all even → set 0)</h4><div class="formula">0  miss   set0 = {0}            (LRU listed first)
+8  miss   set0 = {0, 8}
+0  HIT    set0 = {8, 0}         8 is now least recently used
+6  miss   set0 = {0, 6}         evicts 8
+8  miss   set0 = {6, 8}         evicts 0
+Total: 4 misses, 1 hit</div><h4>Fully associative: 4 slots, only 3 distinct blocks</h4><div class="formula">0 miss, 8 miss, 0 HIT, 6 miss, 8 HIT
+Total: 3 misses, 2 hits</div></div></details></div>
 <div class="q"><h3>P2. Address trace<span class="badges"><span class="bd bq">On quiz</span></span></h3>
 <p>Byte addresses: <span class="mono">64, 200, 580, 72, 336, 1100, 216, 592, 96, 1092</span>. Memory is 8 KB, each word is 4 bytes. Find hits, misses and final contents for (a) a direct mapped cache with 8-word blocks and 64 words total, and (b) a 2-way cache with the same block size and total size, using LRU.</p>
-<details class="sol"><summary>Answer P2</summary><div class="body">
+<details class="sol"><summary>Answer P2</summary><div class="body"><h4>Setup</h4><div class="formula">memory 8 KB = 2^13        → address = 13 bits
+block = 8 words × 4 B = 32 B = 2^5 → offset = 5 bits
+cache = 64 words × 4 B = 256 B → 256 / 32 = 8 blocks
+
+(a) direct mapped: 8 sets → index 3, tag 13 − 3 − 5 = 5
+(b) 2-way: 8 / 2 = 4 sets → index 2, tag 13 − 2 − 5 = 6</div><h4>Block numbers (address / 32, drop the remainder)</h4><div class="formula">64/32 = 2      200/32 = 6.25 → 6     580/32 = 18.1 → 18
+72/32 = 2.25 → 2   336/32 = 10.5 → 10   1100/32 = 34.4 → 34
+216/32 = 6.75 → 6  592/32 = 18.5 → 18   96/32 = 3   1092/32 = 34.1 → 34
+
+DM index  = block mod 8: 2, 6, 2, 2, 2, 2, 6, 2, 3, 2
+2-way set = block mod 4: 2, 2, 2, 2, 2, 2, 2, 2, 3, 2
+Byte range of block b = b×32 to b×32+31   (e.g. block 34 → 1088 to 1119)</div><p>Now walk the list one address at a time, as in the tables below.</p>
 <p>Address 13 bits, block 32 B, offset 5, 8 blocks. Memory block numbers in order: 2, 6, 18, 2, 10, 34, 6, 18, 3, 34.</p>
 <h4>(a) Direct mapped: index 3, tag 5</h4>
 <div class="tw"><table>
@@ -236,18 +256,31 @@ Write buffer removes X% of stalls → dirty penalty × (1 − X).     Speedup = 
 <h4 class="lbl">Now do this</h4>
 <div class="q"><h3>P3. Total cache bits<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>Total bits for each cache in P2.</p>
-<details class="sol"><summary>Answer P3</summary><div class="body"><div class="formula">(a) 8 × (1 + 5 + 256) = 2,096 bits
-(b) 8 × (1 + 6 + 256) = 2,104 bits</div></div></details></div>
+<details class="sol"><summary>Answer P3</summary><div class="body"><div class="formula">data bits per block = 32 bytes × 8 = 256
+
+(a) direct mapped: 1 valid + 5 tag + 256 data = 262 bits per block
+    8 blocks × 262 = 2,096 bits
+(b) 2-way:         1 valid + 6 tag + 256 data = 263 bits per block
+    8 blocks × 263 = 2,104 bits</div><p>Tag sizes come from P2. Same data, but the 2-way needs 1 extra tag bit per block.</p></div></details></div>
 <div class="q"><h3>P4. CPI with L2<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>Base CPI 1.5, 4 GHz, memory 50 ns, L1 miss rate 8%. Find the CPI for (a) L1 only, (b) adding an L2 with 12-cycle access and 2% global miss rate, (c) instead an L2 with 30-cycle access and 1% global miss rate.</p>
-<details class="sol"><summary>Answer P4</summary><div class="body"><div class="formula">clock = 0.25 ns → memory = 200 cycles
-(a) 1.5 + 0.08 × 200              = 17.5
-(b) 1.5 + 0.08 × 12 + 0.02 × 200  = 1.5 + 0.96 + 4 = 6.46
-(c) 1.5 + 0.08 × 30 + 0.01 × 200  = 1.5 + 2.4 + 2  = 5.9</div></div></details></div>
+<details class="sol"><summary>Answer P4</summary><div class="body"><h4>Step 1. Memory time in cycles</h4><div class="formula">clock = 1 / 4 GHz = 0.25 ns
+memory = 50 ns / 0.25 ns = 200 cycles</div><h4>Step 2. Plug in</h4><div class="formula">(a) every L1 miss goes to memory:
+    1.5 + 0.08 × 200 = 1.5 + 16 = 17.5
+
+(b) every L1 miss pays L2 time, misses that also miss L2 (global 2%) pay memory:
+    1.5 + 0.08 × 12 + 0.02 × 200 = 1.5 + 0.96 + 4 = 6.46
+
+(c) 1.5 + 0.08 × 30 + 0.01 × 200 = 1.5 + 2.4 + 2 = 5.9</div><p>(c) is slower per L2 hit but wins because its lower miss rate avoids more 200-cycle trips to memory.</p></div></details></div>
 <div class="q"><h3>P5. AMAT with dirty blocks<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>Write back cache, 40% of evicted blocks dirty. Miss rate 8%, hit time 1 cycle, miss penalty 6 cycles clean and 18 cycles dirty. Find (a) AMAT and (b) the speedup if a write buffer removes 25% of the write back stalls.</p>
-<details class="sol"><summary>Answer P5</summary><div class="body"><div class="formula">(a) 1 + 0.08 × (0.4 × 18 + 0.6 × 6)          = 1 + 0.08 × 10.8 = 1.864
-(b) 1 + 0.08 × (0.4 × 18 × 0.75 + 0.6 × 6)   = 1 + 0.08 × 9    = 1.72
+<details class="sol"><summary>Answer P5</summary><div class="body"><h4>(a) Average miss penalty, then AMAT</h4><div class="formula">dirty part: 0.4 × 18 = 7.2
+clean part: 0.6 × 6  = 3.6
+average penalty = 7.2 + 3.6 = 10.8 cycles
+AMAT = 1 + 0.08 × 10.8 = 1 + 0.864 = 1.864 cycles</div><h4>(b) Write buffer removes 25% → dirty penalty × 0.75 (her convention)</h4><div class="formula">dirty penalty = 18 × 0.75 = 13.5
+dirty part: 0.4 × 13.5 = 5.4
+average penalty = 5.4 + 3.6 = 9
+AMAT = 1 + 0.08 × 9 = 1.72
 speedup = 1.864 / 1.72 = 1.08</div></div></details></div>
 </div>
 <div class="step" id="step5">
@@ -263,15 +296,28 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <h4 class="lbl">Now do this</h4>
 <div class="q"><h3>P6. Page table size<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>42-bit VA, 16 KB pages, 34-bit PA, 4 status bits. Page table size per process?</p>
-<details class="sol"><summary>Answer P6</summary><div class="body"><div class="formula">entries = 2^42 / 2^14 = 2^28
-width   = 4 + 34 = 38 bits
-size    = 2^28 × 38 bits = 2^25 × 38 bytes ≈ 1.19 GiB</div></div></details></div>
+<details class="sol"><summary>Answer P6</summary><div class="body"><div class="formula">page 16 KB = 2^14 → offset 14 bits
+VPN = 42 − 14 = 28 bits → 2^28 entries
+entry width = 4 status + 34 PA bits = 38 bits   (her slide method)
+
+size = 2^28 × 38 bits
+     = 2^28 × 38 / 8 bytes = 2^25 × 38 bytes
+     = 33,554,432 × 38 = 1,275,068,416 bytes
+     ÷ 2^30 ≈ 1.19 GiB</div></div></details></div>
 <div class="q"><h3>P7. Multi-level levels<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>40-bit VA, 4 KB pages, 8-byte PTEs, each level fits in one page. How many levels, and how many memory refs on a TLB miss?</p>
-<details class="sol"><summary>Answer P7</summary><div class="body"><p>VPN = 28 bits. A page holds 4096 / 8 = 512 entries = 9 bits per level. ceil(28 / 9) = <b>4 levels</b>, so <b>4 refs</b> for translation plus 1 for the data.</p></div></details></div>
+<details class="sol"><summary>Answer P7</summary><div class="body"><div class="formula">page 4 KB = 2^12 → offset 12
+VPN = 40 − 12 = 28 bits
+
+one page holds 4096 / 8 = 512 = 2^9 PTEs → each level uses 9 VPN bits
+levels = ceil(28 / 9) = ceil(3.1) = 4   (e.g. 1 + 9 + 9 + 9)
+
+TLB miss: read 1 table per level = 4 memory refs, then the data = 5th ref</div></div></details></div>
 <div class="q"><h3>P8. Inverted page table<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>8 GiB of DRAM and 4 KB pages. How many entries in the inverted page table?</p>
-<details class="sol"><summary>Answer P8</summary><div class="body"><p>2<sup>33</sup> / 2<sup>12</sup> = 2<sup>21</sup> = <b>2,097,152 entries</b>.</p></div></details></div>
+<details class="sol"><summary>Answer P8</summary><div class="body"><div class="formula">one entry per physical frame
+frames = DRAM / page size = 2^33 / 2^12 = 2^21
+2^21 = 2,097,152 entries</div></div></details></div>
 </div>
 <div class="step" id="step6">
 <div class="stephead"><h2>Step 6. Inverted page table (conceptual Q2)</h2><label class="done"><input type="checkbox" id="done6"> Done</label></div>
@@ -323,7 +369,23 @@ size    = 2^28 × 38 bits = 2^25 × 38 bytes ≈ 1.19 GiB</div></div></details><
 <tr><td>6</td><td>2</td><td></td><td></td></tr>
 </table></div><p class="src">Initial page table</p></div>
 </div>
-<details class="sol"><summary>Answer P9</summary><div class="body">
+<details class="sol"><summary>Answer P9</summary><div class="body"><h4>Step by step (times shown after each access; evict the largest time)</h4><div class="formula">start: 0x1:1  0x6:3  0x4:2  0xc:5        largest PPN in PT = 10 → next new page is 11
+
+1. 0x4a10 → VPN 0x4. In TLB → TLB HIT. PPN 8 → PA 0x8a10
+   0x1:2  0x6:4  0x4:0  0xc:6
+2. 0x2c08 → VPN 0x2. Not in TLB. PT[2] = Disk → PAGE FAULT. PPN 11 (0xb), PT[2] = 11
+   evict largest time = 0xc (7) → PA 0xbc08
+   0x1:3  0x6:5  0x4:1  0x2:0
+3. 0x7f00 → VPN 0x7. Not in TLB. PT[7] = 3 → PT HIT. Evict 0x6 (6) → PA 0x3f00
+   0x1:4  0x7:0  0x4:2  0x2:1
+4. 0x1234 → VPN 0x1. In TLB → TLB HIT. PPN 9 → PA 0x9234
+   0x1:0  0x7:1  0x4:3  0x2:2
+5. 0x5abc → VPN 0x5. PT[5] = Disk → PAGE FAULT. PPN 12 (0xc). Evict 0x4 (4) → PA 0xcabc
+   0x1:1  0x7:2  0x5:0  0x2:3
+6. 0x6004 → VPN 0x6. Evicted in step 3, so not in TLB. PT[6] = 2 → PT HIT. Evict 0x2 (4) → PA 0x2004
+   0x1:2  0x7:3  0x5:1  0x6:0
+7. 0x3ff0 → VPN 0x3. PT[3] = 4 → PT HIT. Evict 0x7 (4) → PA 0x4ff0
+   0x1:3  0x3:0  0x5:2  0x6:1</div><p><b>PA rule:</b> replace the VPN digit with the PPN in hex and keep the last 3 hex digits (the offset).</p><h4>Summary</h4>
 <p>Largest PPN in use is 10, so new pages get 11, then 12.</p>
 <div class="tw"><table>
 <tr><th>VA</th><th>VPN</th><th>Result</th><th>Action</th><th>PA</th></tr>
@@ -435,7 +497,14 @@ size    = 2^28 × 38 bits = 2^25 × 38 bytes ≈ 1.19 GiB</div></div></details><
 <div class="q">
 <h3>Problem 1. Cache memory</h3>
 <p><b>(a)</b> <span class="pts">[quantitative]</span> A processor has a 16 MB data cache with 128-byte blocks. The physical address is 48 bits wide (addr[47:0]). Find the number of sets, the index size and the tag size for: direct mapped, 2-way, 16-way and fully associative.</p>
-<details class="sol"><summary>Solution 1(a)</summary><div class="body">
+<details class="sol"><summary>Solution 1(a)</summary><div class="body"><h4>Work</h4><div class="formula">16 MB = 2^4 × 2^20 = 2^24      128 B = 2^7 → offset 7
+blocks = 2^24 / 2^7 = 2^17
+tag = 48 − index − 7   (tag + index always = 41)
+
+DM:     2^17 sets → index 17 → tag 24
+2-way:  2^16 sets → index 16 → tag 25
+16-way: 2^17/2^4 = 2^13 sets → index 13 → tag 28
+FA:     1 set → index 0 → tag 41</div>
 <p>#blocks = 2<sup>24</sup> / 2<sup>7</sup> = 2<sup>17</sup>. Offset = 7.</p>
 <div class="tw"><table>
 <tr><th>Structure</th><th class="n">Sets</th><th class="n">Index</th><th class="n">Tag</th></tr>
@@ -449,6 +518,13 @@ size    = 2^28 × 38 bits = 2^25 × 38 bytes ≈ 1.19 GiB</div></div></details><
 <p><b>(b)</b> <span class="pts">[quantitative]</span> The following byte addresses (decimal) are used consecutively: <span class="mono">100, 360, 148, 108, 160, 412, 144, 376, 200, 112, 420, 392</span>. Each word is 4 bytes and the memory size is 16 KB. For each cache, give hits, misses, and which memory block is finally in each cache block:</p>
 <p>(i) Direct mapped, 8-word blocks, total 64 words of data.<br>(ii) 2-way set associative, 8-word blocks, total 64 words of data, LRU.</p>
 <details class="sol"><summary>Solution 1(b)</summary><div class="body">
+<div class="formula">memory 16 KB = 2^14 → 14-bit address
+block = 8 words × 4 B = 32 B → offset 5        cache = 64 words × 4 B = 256 B → 8 blocks
+(i) DM 8 sets → index 3, tag 6        (ii) 2-way 4 sets → index 2, tag 7
+
+block = address / 32:  100→3  360→11  148→4  108→3  160→5  412→12  144→4  376→11  200→6  112→3  420→13  392→12
+DM index = block mod 8:   3, 3, 4, 3, 5, 4, 4, 3, 6, 3, 5, 4
+2-way set = block mod 4:  3, 3, 0, 3, 1, 0, 0, 3, 2, 3, 1, 0</div>
 <p>Address = log2(16K) = 14 bits. Block = 8 × 4 = 32 B, offset 5. 64 words / 8 = 8 blocks in both caches.</p>
 <h4>(i) Direct mapped: 8 sets</h4>
 <div class="bits"><span class="t" style="flex:6">Tag 6</span><span class="i" style="flex:3">Index 3</span><span class="o" style="flex:5">Offset 5</span></div>
@@ -490,7 +566,8 @@ size    = 2^28 × 38 bits = 2^25 × 38 bytes ≈ 1.19 GiB</div></div></details><
 
 <p><b>(c)</b> <span class="pts">[quantitative]</span> Find the total number of bits needed for each cache in (b).</p>
 <details class="sol"><summary>Solution 1(c)</summary><div class="body">
-<div class="formula">(i)  8 × (1 + 6 + 256) = 8 × 263 = 2,104 bits = 263 bytes
+<div class="formula">data per block = 32 B × 8 = 256 bits; tags from 1(b): 6 (DM) and 7 (2-way)
+(i)  8 × (1 + 6 + 256) = 8 × 263 = 2,104 bits = 263 bytes
 (ii) 8 × (1 + 7 + 256) = 8 × 264 = 2,112 bits = 264 bytes</div>
 <p>Same data, but the 2-way cache needs 1 more tag bit per block.</p>
 </div></details>
@@ -543,7 +620,14 @@ levels = ceil(23 / 11) = 3            (e.g. 1 + 11 + 11 bits)</div>
 <tr><td>5</td><td>1</td><td>10</td><td>11</td><td>1</td><td>11</td></tr>
 </table></div><p class="src">Initial page table</p></div>
 </div>
-<details class="sol"><summary>Solution 2(d)</summary><div class="body">
+<details class="sol"><summary>Solution 2(d)</summary><div class="body"><h4>Step by step (time since access after each step; evict the largest)</h4><div class="formula">start: 0x2:2  0x9:4  0x5:1  (invalid 0x1)        largest PPN = 11 → new pages 12, 13
+1. 0x5a3c VPN 5 → TLB HIT → PA 0xaa3c          0x2:3  0x9:5  0x5:0  inv
+2. 0x31f0 VPN 3 → PT[3]=2 PT HIT, fill invalid  0x2:4  0x9:6  0x5:1  0x3:0
+3. 0x7004 VPN 7 → PAGE FAULT, PPN 12, evict 0x9 0x2:5  0x7:0  0x5:2  0x3:1
+4. 0x2ab8 VPN 2 → TLB HIT                       0x2:0  0x7:1  0x5:3  0x3:2
+5. 0x8e10 VPN 8 → PT[8]=5 PT HIT, evict 0x5     0x2:1  0x7:2  0x8:0  0x3:3
+6. 0xa2c4 VPN a → PAGE FAULT, PPN 13, evict 0x3 0x2:2  0x7:3  0x8:1  0xa:0
+7. 0x5100 VPN 5 → PT[5]=10 PT HIT, evict 0x7    0x2:3  0x5:0  0x8:2  0xa:1</div>
 <p>VPN = address without its last 3 hex digits. Largest PPN in use is 11, so new pages get 12, then 13.</p>
 <div class="tw"><table>
 <tr><th>VA</th><th>VPN</th><th>Result</th><th>Action</th><th>PA</th></tr>
