@@ -5,6 +5,13 @@
 .bd.bq{background:var(--idx-bg);color:var(--idx)}
 .bd.bp{background:var(--tag-bg);color:var(--tag)}
 .key{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:14px;color:var(--muted);margin:10px 0 4px}
+.step{border-top:2px solid var(--line);margin-top:36px;padding-top:4px}
+.stephead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.stephead h2{margin-bottom:0}
+.done{font:600 14px var(--f-body);display:inline-flex;gap:6px;align-items:center;cursor:pointer;color:var(--muted)}
+.done input{width:18px;height:18px;accent-color:var(--idx)}
+.step.isdone .stephead h2{color:var(--muted)}
+.lbl{font:600 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:18px 0 0}
 </style>
 <title>ECE 563 Quiz 1 Prep</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -109,18 +116,20 @@ ul.tight li{margin:3px 0}
 </header>
 
 <nav class="tabs" aria-label="Sections"><div class="tabrow" role="tablist">
-  <button role="tab" data-tab="cram">Cram sheet</button>
+  <button role="tab" data-tab="cram">Study path</button>
   <button role="tab" data-tab="quiz">Practice quiz</button>
   <button role="tab" data-tab="concept">Conceptual answers</button>
 </div></nav>
 
 <!-- ============ CRAM ============ -->
 <section class="panel" id="cram" role="tabpanel" hidden>
-<h2>Last night cram sheet</h2>
-<div class="note"><p><b>Order:</b> read the notes (45 min), do problems P1 to P9 on paper without looking (2 hrs), check answers (30 min), say the two conceptual answers out loud, then sleep. Every answer here was checked by simulation.</p></div>
-
-<h2>Notes</h2>
+<h2>Study path</h2>
+<div class="note"><p>Go in order. Read the notes for a step, do its problems on paper <b>before</b> opening the answer, then tick the step done and move on. When all steps are done, take the Practice quiz tab with the 30 minute timer.</p></div>
 <div class="key"><span class="bd bm">Memorize</span> know the steps or idea by heart <span class="bd bs">On her formula sheet</span> given to you on the day <span class="bd bq">On quiz</span> she named it in the announcement <span class="bd bp">Maybe on quiz</span> came up in homework</div>
+<p class="src" id="progress"></p>
+<div class="step" id="step1">
+<div class="stephead"><h2>Step 1. Cache address split</h2><label class="done"><input type="checkbox" id="done1"> Done</label></div>
+<h4 class="lbl">Read</h4>
 <h3>Cache address split<span class="badges"><span class="bd bm">Memorize</span><span class="bd bq">On quiz</span></span></h3>
 <div class="bits"><span class="t" style="flex:5">Tag</span><span class="i" style="flex:3">Index</span><span class="o" style="flex:2">Offset</span></div>
 <div class="formula">address bits = log2(memory bytes)          8 KB memory → 13 bits
@@ -128,66 +137,7 @@ offset = log2(block bytes)
 blocks = cache size / block size     sets = blocks / ways
 index  = log2(sets)                  tag = address − index − offset
 Double the ways → index −1, tag +1.  Fully associative → index 0</div>
-
-<h3>Tracing addresses (most likely quantitative question)<span class="badges"><span class="bd bm">Memorize</span><span class="bd bq">On quiz</span></span></h3>
-<ol class="tight">
-<li>Block # = byte address / block bytes, rounded down. Watch for 8-word blocks = 32 bytes.</li>
-<li>Set = block # mod #sets.</li>
-<li>Hit if the set already holds the block. Otherwise miss: fill an empty way or evict the LRU one.</li>
-<li>Final answer: cache block → memory block and its byte range, e.g. Mem[96 to 127].</li>
-</ol>
-
-<h3>Formulas in her style<span class="badges"><span class="bd bs">On her formula sheet</span><span class="bd bp">Maybe on quiz</span></span></h3>
-<div class="formula">Total cache bits = #blocks × (1 valid + tag + 8 × block bytes)   (+1 dirty only if write back)
-CPI  = base + L1 miss × L2 time + global miss × memory cycles     memory cycles = memory ns / clock ns
-AMAT = hit + miss rate × (dirty% × dirty penalty + clean% × clean penalty)
-Write buffer removes X% of stalls → dirty penalty × (1 − X).     Speedup = old AMAT / new AMAT</div>
-
-<h3>Virtual memory<span class="badges"><span class="bd bs">On her formula sheet</span><span class="bd bp">Maybe on quiz</span></span></h3>
-<div class="formula">VPN bits = VA bits − log2(page size)        #PTEs = 2^VPN bits
-Page table size = entries × width   (her slides: width = status bits + full PA bits)
-Multi-level: entries per page = page size / PTE size
-             levels = ceil(VPN bits / log2(entries per page))
-             TLB miss = 1 memory ref per level (+1 for the data)
-Inverted table: entries = DRAM / page size, one table for the whole system</div>
-
-<h3>TLB trace<span class="badges"><span class="bd bm">Memorize</span><span class="bd bp">Maybe on quiz</span></span></h3>
-<ol class="tight">
-<li>VPN = hex address with the last 3 digits dropped (4 KB pages).</li>
-<li>In the TLB: <span class="pill hit">TLB hit</span></li>
-<li>Not in TLB, valid in page table: <span class="pill">PT hit</span>, load into the TLB.</li>
-<li>Invalid in page table: <span class="pill pf">page fault</span>, give it the next largest PPN, set PT valid.</li>
-<li>Loading into the TLB: use an invalid entry first, else evict the largest "time since access". Each step add 1 to every other entry's time and reset the accessed one to 0.</li>
-</ol>
-
-<h3>Conceptual Q1: increasing associativity at fixed size<span class="badges"><span class="bd bm">Memorize</span><span class="bd bq">On quiz</span></span></h3>
-<ul class="tight">
-<li>Sets halve, index goes down, tag goes up.</li>
-<li>Conflict misses go down, so miss rate drops, with diminishing returns (her slide: 10.3%, 8.6%, 8.3%, 8.1%).</li>
-<li>Compulsory and capacity misses are unchanged.</li>
-<li>Going up: hit time (more comparators plus way mux), power (all ways read), tag storage, area, LRU complexity.</li>
-<li>AMAT = hit + miss rate × penalty, so eventually hit time growth beats the miss rate drop. That is why L1 has low associativity and L2/L3 high.</li>
-</ul>
-
-<h3>Conceptual Q2: inverted page table<span class="badges"><span class="bd bm">Memorize</span><span class="bd bq">On quiz</span></span></h3>
-<ul class="tight">
-<li>One entry per physical frame, holding (pid, VPN). One table for the whole system, sized by DRAM.</li>
-<li>Lookup: hash (pid, VPN), follow the chain to a match. The index i of the match is the frame, so PA = (i, offset).</li>
-<li>No match means page fault.</li>
-<li>Pro: tiny table. Cons: slow search (about 1 ref usually, a long chain worst case) so it needs a TLB, sharing is hard, pages on disk need a separate structure.</li>
-</ul>
-
-<h3>One-liners for other trade-off questions<span class="badges"><span class="bd bs">Skim once</span><span class="bd bp">Maybe on quiz</span></span></h3>
-<ul class="tight">
-<li><b>Bigger blocks:</b> fewer compulsory misses, but bigger miss penalty and fewer blocks.</li>
-<li><b>Write through:</b> simple but heavy traffic, needs a write buffer. <b>Write back:</b> low traffic, needs a dirty bit, dirty evictions are slower.</li>
-<li><b>Virtual memory</b> uses write back and software fault handling because a page fault costs millions of cycles.</li>
-<li><b>Bigger pages:</b> smaller page table and more TLB reach, but internal fragmentation.</li>
-</ul>
-
-<h2>Practice problems</h2>
-<div class="timer"><button class="btn" id="cramAll" type="button">Show all answers</button></div>
-
+<h4 class="lbl">Now do this</h4>
 <div class="q"><h3>P1. Sets and tags<span class="badges"><span class="bd bq">On quiz</span></span></h3>
 <p>A 32 MB cache with 64 B blocks and a 52-bit address. Find sets, index bits and tag bits for direct mapped, 4-way, 8-way and fully associative.</p>
 <details class="sol"><summary>Answer P1</summary><div class="body">
@@ -199,7 +149,27 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <tr><td>8-way</td><td class="n">2<sup>16</sup></td><td class="n">16</td><td class="n">30</td></tr>
 <tr><td>Fully associative</td><td class="n">1</td><td class="n">0</td><td class="n">46</td></tr>
 </table></div></div></details></div>
-
+<div class="q"><h3>From HW2: Problem 1<span class="badges"><span class="bd bq">On quiz</span></span></h3>
+<p>8 MB data cache, 256-byte blocks, 58-bit physical address. Index and tag for direct mapped, 8-way and fully associative.</p>
+<details class="sol"><summary>Answer</summary><div class="body"><p>Blocks = 2<sup>23</sup> / 2<sup>8</sup> = 2<sup>15</sup>, offset 8. Direct mapped: index 15, tag 35. 8-way: 2<sup>12</sup> sets, index 12, tag 38. Fully associative: index 0, tag 50.</p></div></details></div>
+</div>
+<div class="step" id="step2">
+<div class="stephead"><h2>Step 2. Tracing addresses</h2><label class="done"><input type="checkbox" id="done2"> Done</label></div>
+<h4 class="lbl">Read</h4>
+<h3>Tracing addresses (most likely quantitative question)<span class="badges"><span class="bd bm">Memorize</span><span class="bd bq">On quiz</span></span></h3>
+<ol class="tight">
+<li>Block # = byte address / block bytes, rounded down. Watch for 8-word blocks = 32 bytes.</li>
+<li>Set = block # mod #sets.</li>
+<li>Hit if the set already holds the block. Otherwise miss: fill an empty way or evict the LRU one.</li>
+<li>Final answer: cache block → memory block and its byte range, e.g. Mem[96 to 127].</li>
+</ol>
+<h4 class="lbl">Now do this</h4>
+<div class="q"><h3>Warm-up: her slide example<span class="badges"><span class="bd bq">On quiz</span></span></h3>
+<p>A 4-block cache. Block addresses 0, 8, 0, 6, 8. Count misses for direct mapped, 2-way (LRU) and fully associative.</p>
+<details class="sol"><summary>Answer</summary><div class="body">
+<div class="formula">Direct mapped (index = block mod 4): 0,8,0 all map to 0 → 5 misses, 0 hits
+2-way (2 sets, set = block mod 2): 0,8 share set 0 → 0 hit on 3rd access, 6 evicts 8, 8 evicts 0 → 4 misses, 1 hit
+Fully associative: only 3 distinct blocks fit → 3 misses, 2 hits</div></div></details></div>
 <div class="q"><h3>P2. Address trace<span class="badges"><span class="bd bq">On quiz</span></span></h3>
 <p>Byte addresses: <span class="mono">64, 200, 580, 72, 336, 1100, 216, 592, 96, 1092</span>. Memory is 8 KB, each word is 4 bytes. Find hits, misses and final contents for (a) a direct mapped cache with 8-word blocks and 64 words total, and (b) a 2-way cache with the same block size and total size, using LRU.</p>
 <details class="sol"><summary>Answer P2</summary><div class="body">
@@ -236,39 +206,102 @@ Inverted table: entries = DRAM / page size, one table for the whole system</div>
 <p><b>0 hits, 10 misses.</b> Final: set 2 = Mem blocks 18 (576 to 607) and 34 (1088 to 1119). Set 3 = Mem block 3 (96 to 127). Sets 0 and 1 empty.</p>
 <p>Good point if asked: higher associativity does not always win. Five blocks cycle through a 2-way set, so LRU always evicts the block needed next (thrashing).</p>
 </div></details></div>
-
+</div>
+<div class="step" id="step3">
+<div class="stephead"><h2>Step 3. Associativity trade-offs (conceptual Q1)</h2><label class="done"><input type="checkbox" id="done3"> Done</label></div>
+<h4 class="lbl">Read</h4>
+<h3>Conceptual Q1: increasing associativity at fixed size<span class="badges"><span class="bd bm">Memorize</span><span class="bd bq">On quiz</span></span></h3>
+<ul class="tight">
+<li>Sets halve, index goes down, tag goes up.</li>
+<li>Conflict misses go down, so miss rate drops, with diminishing returns (her slide: 10.3%, 8.6%, 8.3%, 8.1%).</li>
+<li>Compulsory and capacity misses are unchanged.</li>
+<li>Going up: hit time (more comparators plus way mux), power (all ways read), tag storage, area, LRU complexity.</li>
+<li>AMAT = hit + miss rate × penalty, so eventually hit time growth beats the miss rate drop. That is why L1 has low associativity and L2/L3 high.</li>
+</ul>
+<h4 class="lbl">Now do this</h4>
+<div class="q"><h3>Try it: explain in your own words<span class="badges"><span class="bd bq">On quiz</span></span></h3>
+<p>Without looking: what goes down and what goes up when you double associativity in a cache of fixed size? Then, looking at P2: why did the 2-way cache still get 0 hits?</p>
+<details class="sol"><summary>Answer</summary><div class="body">
+<p><b>Down:</b> conflict misses, so miss rate, with diminishing returns. Index bits drop by 1. <b>Up:</b> tag bits, hit time (more comparators and a way mux), power, area, LRU complexity. Compulsory and capacity misses stay the same.</p>
+<p><b>P2:</b> five different blocks (2, 6, 18, 10, 34) all map to set 2, but it only has 2 ways. LRU keeps evicting the block that comes back next. These are still conflict misses: a fully associative cache of the same size holds all 6 distinct blocks and gets 4 hits. Two ways just aren't enough for 5 blocks fighting over one set.</p></div></details></div>
+</div>
+<div class="step" id="step4">
+<div class="stephead"><h2>Step 4. Cache bits, CPI and AMAT</h2><label class="done"><input type="checkbox" id="done4"> Done</label></div>
+<h4 class="lbl">Read</h4>
+<h3>Formulas in her style<span class="badges"><span class="bd bs">On her formula sheet</span><span class="bd bp">Maybe on quiz</span></span></h3>
+<div class="formula">Total cache bits = #blocks × (1 valid + tag + 8 × block bytes)   (+1 dirty only if write back)
+CPI  = base + L1 miss × L2 time + global miss × memory cycles     memory cycles = memory ns / clock ns
+AMAT = hit + miss rate × (dirty% × dirty penalty + clean% × clean penalty)
+Write buffer removes X% of stalls → dirty penalty × (1 − X).     Speedup = old AMAT / new AMAT</div>
+<h4 class="lbl">Now do this</h4>
 <div class="q"><h3>P3. Total cache bits<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>Total bits for each cache in P2.</p>
 <details class="sol"><summary>Answer P3</summary><div class="body"><div class="formula">(a) 8 × (1 + 5 + 256) = 2,096 bits
 (b) 8 × (1 + 6 + 256) = 2,104 bits</div></div></details></div>
-
 <div class="q"><h3>P4. CPI with L2<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>Base CPI 1.5, 4 GHz, memory 50 ns, L1 miss rate 8%. Find the CPI for (a) L1 only, (b) adding an L2 with 12-cycle access and 2% global miss rate, (c) instead an L2 with 30-cycle access and 1% global miss rate.</p>
 <details class="sol"><summary>Answer P4</summary><div class="body"><div class="formula">clock = 0.25 ns → memory = 200 cycles
 (a) 1.5 + 0.08 × 200              = 17.5
 (b) 1.5 + 0.08 × 12 + 0.02 × 200  = 1.5 + 0.96 + 4 = 6.46
 (c) 1.5 + 0.08 × 30 + 0.01 × 200  = 1.5 + 2.4 + 2  = 5.9</div></div></details></div>
-
 <div class="q"><h3>P5. AMAT with dirty blocks<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>Write back cache, 40% of evicted blocks dirty. Miss rate 8%, hit time 1 cycle, miss penalty 6 cycles clean and 18 cycles dirty. Find (a) AMAT and (b) the speedup if a write buffer removes 25% of the write back stalls.</p>
 <details class="sol"><summary>Answer P5</summary><div class="body"><div class="formula">(a) 1 + 0.08 × (0.4 × 18 + 0.6 × 6)          = 1 + 0.08 × 10.8 = 1.864
 (b) 1 + 0.08 × (0.4 × 18 × 0.75 + 0.6 × 6)   = 1 + 0.08 × 9    = 1.72
 speedup = 1.864 / 1.72 = 1.08</div></div></details></div>
-
+</div>
+<div class="step" id="step5">
+<div class="stephead"><h2>Step 5. Page tables</h2><label class="done"><input type="checkbox" id="done5"> Done</label></div>
+<h4 class="lbl">Read</h4>
+<h3>Virtual memory<span class="badges"><span class="bd bs">On her formula sheet</span><span class="bd bp">Maybe on quiz</span></span></h3>
+<div class="formula">VPN bits = VA bits − log2(page size)        #PTEs = 2^VPN bits
+Page table size = entries × width   (her slides: width = status bits + full PA bits)
+Multi-level: entries per page = page size / PTE size
+             levels = ceil(VPN bits / log2(entries per page))
+             TLB miss = 1 memory ref per level (+1 for the data)
+Inverted table: entries = DRAM / page size, one table for the whole system</div>
+<h4 class="lbl">Now do this</h4>
 <div class="q"><h3>P6. Page table size<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>42-bit VA, 16 KB pages, 34-bit PA, 4 status bits. Page table size per process?</p>
 <details class="sol"><summary>Answer P6</summary><div class="body"><div class="formula">entries = 2^42 / 2^14 = 2^28
 width   = 4 + 34 = 38 bits
 size    = 2^28 × 38 bits = 2^25 × 38 bytes ≈ 1.19 GiB</div></div></details></div>
-
 <div class="q"><h3>P7. Multi-level levels<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>40-bit VA, 4 KB pages, 8-byte PTEs, each level fits in one page. How many levels, and how many memory refs on a TLB miss?</p>
 <details class="sol"><summary>Answer P7</summary><div class="body"><p>VPN = 28 bits. A page holds 4096 / 8 = 512 entries = 9 bits per level. ceil(28 / 9) = <b>4 levels</b>, so <b>4 refs</b> for translation plus 1 for the data.</p></div></details></div>
-
 <div class="q"><h3>P8. Inverted page table<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>8 GiB of DRAM and 4 KB pages. How many entries in the inverted page table?</p>
 <details class="sol"><summary>Answer P8</summary><div class="body"><p>2<sup>33</sup> / 2<sup>12</sup> = 2<sup>21</sup> = <b>2,097,152 entries</b>.</p></div></details></div>
-
+</div>
+<div class="step" id="step6">
+<div class="stephead"><h2>Step 6. Inverted page table (conceptual Q2)</h2><label class="done"><input type="checkbox" id="done6"> Done</label></div>
+<h4 class="lbl">Read</h4>
+<h3>Conceptual Q2: inverted page table<span class="badges"><span class="bd bm">Memorize</span><span class="bd bq">On quiz</span></span></h3>
+<ul class="tight">
+<li>One entry per physical frame, holding (pid, VPN). One table for the whole system, sized by DRAM.</li>
+<li>Lookup: hash (pid, VPN), follow the chain to a match. The index i of the match is the frame, so PA = (i, offset).</li>
+<li>No match means page fault.</li>
+<li>Pro: tiny table. Cons: slow search (about 1 ref usually, a long chain worst case) so it needs a TLB, sharing is hard, pages on disk need a separate structure.</li>
+</ul>
+<h4 class="lbl">Now do this</h4>
+<div class="q"><h3>Try it: write the lookup from memory<span class="badges"><span class="bd bq">On quiz</span></span></h3>
+<p>On paper, write the 4 steps an inverted page table uses to translate (pid, VPN, offset), then 2 pros and 2 cons.</p>
+<details class="sol"><summary>Answer</summary><div class="body">
+<ol class="tight"><li>Hash (pid, VPN) into the hash table.</li><li>Follow the chain, comparing (pid, VPN) in each entry.</li><li>On a match at entry i, the frame number is i, so PA = (i, offset).</li><li>No match means page fault.</li></ol>
+<p><b>Pros:</b> one table for the whole system, sized by DRAM not by the virtual address space. <b>Cons:</b> slow search so it needs a TLB, hard to share pages, pages on disk need another structure.</p></div></details></div>
+</div>
+<div class="step" id="step7">
+<div class="stephead"><h2>Step 7. TLB trace</h2><label class="done"><input type="checkbox" id="done7"> Done</label></div>
+<h4 class="lbl">Read</h4>
+<h3>TLB trace<span class="badges"><span class="bd bm">Memorize</span><span class="bd bp">Maybe on quiz</span></span></h3>
+<ol class="tight">
+<li>VPN = hex address with the last 3 digits dropped (4 KB pages).</li>
+<li>In the TLB: <span class="pill hit">TLB hit</span></li>
+<li>Not in TLB, valid in page table: <span class="pill">PT hit</span>, load into the TLB.</li>
+<li>Invalid in page table: <span class="pill pf">page fault</span>, give it the next largest PPN, set PT valid.</li>
+<li>Loading into the TLB: use an invalid entry first, else evict the largest "time since access". Each step add 1 to every other entry's time and reset the accessed one to 0.</li>
+</ol>
+<h4 class="lbl">Now do this</h4>
 <div class="q"><h3>P9. TLB and page table trace<span class="badges"><span class="bd bp">Maybe on quiz</span></span></h3>
 <p>4 KB pages, 4-entry fully associative TLB with LRU, new pages get the next largest PPN. Virtual addresses: <span class="mono">0x4a10, 0x2c08, 0x7f00, 0x1234, 0x5abc, 0x6004, 0x3ff0</span>.</p>
 <div class="cols">
@@ -305,8 +338,20 @@ size    = 2^28 × 38 bits = 2^25 × 38 bytes ≈ 1.19 GiB</div></div></details><
 <p><b>Final TLB</b> (tag, PPN, time): (0x1, 9, 3), (0x3, 4, 0), (0x5, 12, 2), (0x6, 2, 1). <b>Page table changes:</b> PT[2] valid with PPN 11, PT[5] valid with PPN 12.</p>
 <p>Trap: 0x6 started in the TLB but was evicted at step 3, so step 6 is only a page table hit.</p>
 </div></details></div>
-
-<p>Done with these? Do the Practice quiz tab with the 30 minute timer, then sleep.</p>
+</div>
+<div class="step" id="step8">
+<div class="stephead"><h2>Step 8. Other trade-offs</h2><label class="done"><input type="checkbox" id="done8"> Done</label></div>
+<h4 class="lbl">Read</h4>
+<h3>One-liners for other trade-off questions<span class="badges"><span class="bd bs">Skim once</span><span class="bd bp">Maybe on quiz</span></span></h3>
+<ul class="tight">
+<li><b>Bigger blocks:</b> fewer compulsory misses, but bigger miss penalty and fewer blocks.</li>
+<li><b>Write through:</b> simple but heavy traffic, needs a write buffer. <b>Write back:</b> low traffic, needs a dirty bit, dirty evictions are slower.</li>
+<li><b>Virtual memory</b> uses write back and software fault handling because a page fault costs millions of cycles.</li>
+<li><b>Bigger pages:</b> smaller page table and more TLB reach, but internal fragmentation.</li>
+</ul>
+<p class="src">No problem for this step. Skim it once and move on.</p>
+</div>
+<div class="step"><div class="stephead"><h2>Step 9. Full practice quiz</h2></div><p>Open the <b>Practice quiz</b> tab, start the 30 minute timer, and do both problems without notes. Then check with the answers there. After that, sleep.</p></div>
 </section>
 
 <!-- ============ CONCEPT ============ -->
@@ -539,8 +584,10 @@ levels = ceil(23 / 11) = 3            (e.g. 1 + 11 + 11 bits)</div>
   var start=(location.hash||'').slice(1);
   show(start||'cram',false);
 
-  var ca=document.getElementById('cramAll'),cOpen=false;
-  ca.addEventListener('click',function(){cOpen=!cOpen;document.querySelectorAll('#cram details.sol').forEach(function(d){d.open=cOpen});ca.textContent=cOpen?'Hide all answers':'Show all answers'});
+  var boxes=[].slice.call(document.querySelectorAll('.done input'));
+  function prog(){var n=boxes.filter(function(b){return b.checked}).length;document.getElementById('progress').textContent=n+' of '+boxes.length+' steps done';boxes.forEach(function(b){b.closest('.step').classList.toggle('isdone',b.checked)})}
+  boxes.forEach(function(b){try{b.checked=localStorage.getItem('ece563'+b.id)==='1'}catch(e){}b.addEventListener('change',function(){try{localStorage.setItem('ece563'+b.id,b.checked?'1':'0')}catch(e){}prog()})});
+  prog();
   var all=document.getElementById('showAll'),open=false;
   all.addEventListener('click',function(){open=!open;document.querySelectorAll('#quiz details.sol').forEach(function(d){d.open=open});all.textContent=open?'Hide all solutions':'Show all solutions'});
 
